@@ -26,7 +26,6 @@ const authMiddleware = (req, res, next) => {
 const adminMiddleware = async (req, res, next) => {
   try {
     const employee = await Employee.findById(req.employee.id); // Fetch user from DB
-    console.log("Details:" , employee);
 
     if (!employee) {
       return res.status(404).json({
