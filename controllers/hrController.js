@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Employee = require("../models/employee");
 const { validationResult } = require("express-validator");
 const { generateRandomToken } = require("../utils/functions");
@@ -22,7 +23,7 @@ const addNewEmployee = async (req, res) => {
     if (existingEmployee) {
       return res.status(400).json({
         success: false,
-        message: "Employee already exists.",
+        message: "Email already exists.",
       });
     }
 
@@ -60,4 +61,42 @@ const addNewEmployee = async (req, res) => {
   }
 };
 
-module.exports = { addNewEmployee };
+const employeesListing = async (req, res) => {
+  try{
+    const employees = await Employee.find({ role: { $ne: 'HR' } })
+    .select('fullName teamName designation dateOfJoining');
+
+  if( employees  && employees.length > 0 ){
+      // Format the dateOfJoining to British English format (DD/MM/YYYY)
+      const formattedEmployees = employees.map(employee => {
+        const formattedDate = moment(employee.dateOfJoining).format('DD/MM/YYYY');
+        return {
+          ...employee.toObject(),
+          dateOfJoining: formattedDate
+        };
+      });
+    return res.status(200).json({
+      success: true,
+      message:"Details found",
+      data:{
+        employees: formattedEmployees
+      }
+    })
+  }
+  else{
+    return res.status(400).json({
+      success: false,
+      message: "No employees found"
+    })
+  }
+}
+catch(error){
+  return res.status(500).json({
+    success: false,
+    message: "Internal Server Error"
+  })
+}
+}
+
+
+module.exports = { addNewEmployee , employeesListing };

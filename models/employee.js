@@ -23,10 +23,15 @@ const EmployeeSchema = new mongoose.Schema({
     minLength: 10,
     maxLength: 10,
   },
-  address: {
+  currentAddress: {
     type: String,
     // required: true,
-    maxLength: 100,
+    maxLength: 300,
+  },
+  permanentAddress: {
+    type: String,
+    // required: true,
+    maxLength: 300,
   },
   role: {
     type: String,
@@ -60,6 +65,9 @@ const EmployeeSchema = new mongoose.Schema({
   setPasswordTokenExpire: {
     type: Date,
   },
+  dateOfJoining: {
+    type: Date,
+  },
   isPasswordCreated: {
     type: Boolean,
     default: false,
@@ -67,6 +75,10 @@ const EmployeeSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false,
+  },
+  isFormFilled: {
+    type: Boolean,
+    default: false
   },
   otp: {
     type: String,

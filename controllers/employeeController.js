@@ -139,10 +139,6 @@ const setNewPassword = async (req, res) => {
     employee.setPasswordTokenExpire = null;
     await employee.save();
 
-    if(false){
-      true
-      doj
-    }
     // Generate the verification URL
     const loginUrl = `${process.env.FRONTEND_URL}/`;
 
@@ -212,21 +208,27 @@ const login = async (req, res) => {
         success: false,
         message: "Incorrect password.",
       });
-    }
+    } else {
+      if (!employee.dateOfJoining) {
+        employee.dateOfJoining = new Date();
+        await employee.save();
+      }
 
-    const token = generateToken(employee._id);
-    return res.status(201).json({
-      success: true,
-      message: "Login successful.",
-      data: {
-        token: token,
-        fullName: employee.fullName,
-        role: employee.role,
-        teamName: employee.teamName,
-        desgination: employee.designation,
-      },
-    });
+      const token = generateToken(employee._id);
+      return res.status(201).json({
+        success: true,
+        message: "Login successful.",
+        data: {
+          token: token,
+          fullName: employee.fullName,
+          role: employee.role,
+          teamName: employee.teamName,
+          designation: employee.designation
+        },
+      });
+    }
   } catch (error) {
+    console.log("Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error.",
@@ -469,6 +471,43 @@ const resetPassword = async (req, res) => {
       success: false,
       message: "Internal Server Error.",
     });
+  }
+};
+
+// Update Details
+const uploadForm = async(req,res) => {
+
+  try {
+
+    const {
+      fullName,
+      contactNumber,
+      emergencyContactNumber,
+      currentAddress,
+      permanentAddress
+    } = req.body;
+
+    if ( !fullName || !contactNumber || ! emergencyContactNumber || !currentAddress || !permanentAddress ){
+      return res.status(400).json({
+        success: false,
+        message: "Please fill out all fields."
+      })
+    }
+
+    const existingNumber = await Employee.findOne({ contactNumber });
+
+    if(existingNumber){
+      return res.status(400).json({
+        success: false,
+        message: "Contact Number already exists."
+      })
+    }
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    })
   }
 };
 
